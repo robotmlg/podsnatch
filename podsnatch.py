@@ -11,7 +11,7 @@ class Show:
 
   def __init__(self, outline_element):
     self.title = outline_element.get('title')
-    self.url = outline_element.get('xmlUrl')
+    self.url = outline_element.get('xmlUrl') or outline_element.get('xmlurl') or None
     self.episode_guids = []
 
   def __str__(self):
