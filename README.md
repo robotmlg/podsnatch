@@ -7,6 +7,7 @@ also downloads all the metadata for each episode, and stores it in a plaintext
 file with the same name as the episode audio, with `.txt` appended.
 
 <a name="footnote1">1</a>: Only \~100 lines of Python!
+
 <a name="footnote2">2</a>: *Probably*, I've only tested on Mac.
 
 ## Usage
