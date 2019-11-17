@@ -1,6 +1,7 @@
 from lxml import etree as xml
 import feedparser
 import requests
+import argparse
 import time
 import re
 import os
@@ -63,24 +64,22 @@ def parse_ompl(ompl_path):
   return [Show(x) for x in shows]
 
 
-def main():
-  shows = parse_ompl('overcast.opml')
+def save_podcasts(opml, output):
+  shows = parse_ompl(opml)
 
   for show in shows:
     print(f'Processing show {show.title}')
     feed = feedparser.parse(show.url)
 
-    os.makedirs(show.get_dir_name(), exist_ok=True)
+    show_path = os.path.join(output, show.get_dir_name())
+    os.makedirs(show_path, exist_ok=True)
 
     for item in feed.entries:
       episode = Episode(item, show)
 
       print(f'Processing episode {episode.title}')
 
-      base_path = '.'
-      full_path = os.path.join(base_path,
-                               show.get_dir_name(),
-                               episode.get_file_name())
+      full_path = os.path.join(show_path, episode.get_file_name())
       print(full_path)
 
       if not os.path.exists(full_path):
@@ -98,4 +97,13 @@ def main():
 
 
 if __name__ == '__main__':
-  main()
+  parser = argparse.ArgumentParser(description='Download podcasts.')
+
+  parser.add_argument('--opml', '-i', dest='opml_loc', action='store',
+                      required=True, help='path to opml file to import')
+  parser.add_argument('--output-dir', '-o', dest='output_loc', action='store',
+                      required=False, default='.',
+                      help='location to save podcasts')
+  args = parser.parse_args()
+
+  save_podcasts(args.opml_loc, args.output_loc)
