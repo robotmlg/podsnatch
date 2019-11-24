@@ -1,4 +1,7 @@
+#! /usr/bin/env python
+
 from lxml import etree as xml
+from tqdm import tqdm
 import feedparser
 import requests
 import argparse
@@ -11,7 +14,9 @@ class Show:
 
   def __init__(self, outline_element):
     self.title = outline_element.get('title')
-    self.url = outline_element.get('xmlUrl') or outline_element.get('xmlurl') or None
+    self.url = (outline_element.get('xmlUrl') or
+                outline_element.get('xmlurl') or
+                None)
     self.episode_guids = []
 
   def __str__(self):
@@ -64,8 +69,27 @@ def parse_ompl(ompl_path):
   return [Show(x) for x in shows]
 
 
-def save_podcasts(opml, output):
+def download(url, path, mode):
+  # https://stackoverflow.com/a/37573701
+  response = requests.get(url, stream=True)
+  total_size = int(response.headers.get('content-length', 0))
+  block_size = 1024
+
+  t = tqdm(total=total_size, unit='iB', unit_scale=True)
+  with open(path, mode) as f:
+    for data in response.iter_content(block_size):
+      t.update(len(data))
+      f.write(data)
+  t.close()
+
+  if total_size != 0 and t.n != total_size:
+    print("ERROR downloading file")
+
+
+def save_podcasts(opml, output, episode_count=None):
   shows = parse_ompl(opml)
+
+  total_downloaded = 0
 
   for show in shows:
     print(f'Processing show {show.title}')
@@ -74,7 +98,14 @@ def save_podcasts(opml, output):
     show_path = os.path.join(output, show.get_dir_name())
     os.makedirs(show_path, exist_ok=True)
 
-    for item in feed.entries:
+    cnt_eps_to_dl = (int(episode_count, 10)
+                     if episode_count is not None
+                     else len(feed.entries))
+
+    i = 0
+    show_downloaded = 0
+    while show_downloaded < cnt_eps_to_dl and i < len(feed.entries):
+      item = feed.entries[i]
       episode = Episode(item, show)
 
       print(f'Processing episode {episode.title}')
@@ -84,16 +115,20 @@ def save_podcasts(opml, output):
 
       if not os.path.exists(full_path):
         print('Downloading episode')
-        response = requests.get(episode.url)
-        handle = open(full_path, "wb")
-        handle.write(response.content)
-        handle.close()
+        download(episode.url, full_path, 'wb')
 
         handle = open(full_path + ".txt", "w")
         handle.write(str(episode))
         handle.close()
+
+        show_downloaded += 1
+        total_downloaded += 1
       else:
         print('Episode already downloaded!')
+
+      i += 1
+
+    print(f'{total_downloaded} episodes downloaded')
 
 
 if __name__ == '__main__':
@@ -104,6 +139,9 @@ if __name__ == '__main__':
   parser.add_argument('--output-dir', '-o', dest='output_loc', action='store',
                       required=False, default='.',
                       help='location to save podcasts')
+  parser.add_argument('--number-of-episodes', '-n', dest='ep_cnt',
+                      action='store', default=None,
+                      help='path to opml file to import')
   args = parser.parse_args()
 
-  save_podcasts(args.opml_loc, args.output_loc)
+  save_podcasts(args.opml_loc, args.output_loc, args.ep_cnt)
