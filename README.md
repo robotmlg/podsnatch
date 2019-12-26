@@ -15,5 +15,12 @@ file with the same name as the episode audio, with `.txt` appended.
 python podsnatch.py --opml <input file> -o <output directory>
 ```
 
+If you don't want to deal with all the python setup crap (and I don't blame you)
+you can build the docker container and run with
+
+```bash
+docker run -it -v '/path/to/opml.opml:/input.opml' -v '/path/to/output_dir:/output' podsnatch
+```
+
 ## Contributing
 PRs welcone!
