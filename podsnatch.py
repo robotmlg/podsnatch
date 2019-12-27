@@ -5,9 +5,13 @@ from tqdm import tqdm
 import feedparser
 import requests
 import argparse
+import signal
 import time
+import sys
 import re
 import os
+
+TMP_EXT = '.part'
 
 
 class Show:
@@ -86,10 +90,15 @@ def download(url, path, mode):
     print("ERROR downloading file")
 
 
-def save_podcasts(opml, output, episode_count=None):
-  shows = parse_ompl(opml)
+total_downloaded = 0
+full_path = ''
 
-  total_downloaded = 0
+
+def save_podcasts(opml, output, episode_count=None):
+  global total_downloaded
+  global full_path
+
+  shows = parse_ompl(opml)
 
   for show in shows:
     print(f'Processing show {show.title}')
@@ -115,7 +124,9 @@ def save_podcasts(opml, output, episode_count=None):
 
       if not os.path.exists(full_path):
         print('Downloading episode')
-        download(episode.url, full_path, 'wb')
+        download(episode.url, full_path + TMP_EXT, 'wb')
+
+        os.rename(full_path + TMP_EXT, full_path)
 
         handle = open(full_path + ".txt", "w")
         handle.write(str(episode))
@@ -131,6 +142,16 @@ def save_podcasts(opml, output, episode_count=None):
     print(f'{total_downloaded} episodes downloaded')
 
 
+def ctrl_c_handler(signum, frame):
+  print('Stopping...')
+
+  if os.path.exists(full_path + TMP_EXT):
+    os.remove(full_path + TMP_EXT)
+
+  print(f'{total_downloaded} episodes downloaded')
+  sys.exit(1)
+
+
 if __name__ == '__main__':
   parser = argparse.ArgumentParser(description='Download podcasts.')
 
@@ -143,5 +164,7 @@ if __name__ == '__main__':
                       action='store', default=None,
                       help='path to opml file to import')
   args = parser.parse_args()
+
+  signal.signal(signal.SIGINT, ctrl_c_handler)
 
   save_podcasts(args.opml_loc, args.output_loc, args.ep_cnt)
