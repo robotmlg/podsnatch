@@ -39,7 +39,7 @@ class Episode:
     self.description = item.summary if 'summary' in item else ''
     self.content = item.content[0].value if 'content' in item else ''
     self.number = item.itunes_episode if 'itunes_episode' in item else ''
-    self.url = item.enclosures[0].href if 'enclosures' in item else ''
+    self.url = item.enclosures[0].href if 'enclosures' in item and item.enclosures else ''
     self.date = item.published_parsed if 'published_parsed' in item else ''
 
     self.show = show
@@ -122,7 +122,7 @@ def save_podcasts(opml, output, episode_count=None):
       full_path = os.path.join(show_path, episode.get_file_name())
       print(full_path)
 
-      if not os.path.exists(full_path):
+      if not os.path.exists(full_path) and episode.url:
         print('Downloading episode')
         download(episode.url, full_path + TMP_EXT, 'wb')
 
