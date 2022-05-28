@@ -46,6 +46,12 @@ To run the `podsnatch.py` script, run:
 pipenv run python podsnatch.py --opml <input file> -o <output directory>
 ```
 
+The `requirements.txt` can be updated based on what's in `Pipefile` by running:
+
+```bash
+pipenv requirements > requirements.txt
+```
+
 ### Docker
 
 If you don't want to deal with all the python setup crap (and I don't blame you)
