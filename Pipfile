@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+lxml = "4.8"
+tqdm = "4.64"
+feedparser = "6.0.10"
+requests = "2.27.1"
+argparse = "1.4"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"
