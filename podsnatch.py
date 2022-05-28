@@ -17,7 +17,7 @@ TMP_EXT = '.part'
 class Show:
 
   def __init__(self, outline_element):
-    self.title = outline_element.get('title')
+    self.title = outline_element.get('text')
     self.url = (outline_element.get('xmlUrl') or
                 outline_element.get('xmlurl') or
                 None)
@@ -41,6 +41,7 @@ class Episode:
     self.number = item.itunes_episode if 'itunes_episode' in item else ''
     self.url = item.enclosures[0].href if 'enclosures' in item and item.enclosures else ''
     self.date = item.published_parsed if 'published_parsed' in item else ''
+    self.date_text = item.published if 'published' in item else ''
 
     self.show = show
 
@@ -48,7 +49,7 @@ class Episode:
     return f"""{self.title}
 {self.number}
 {self.guid}
-{self.date}
+{self.date_text}
 {self.link}
 {self.url}
 {self.content if self.content else self.description}
