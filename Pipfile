@@ -9,6 +9,7 @@ tqdm = "4.64"
 feedparser = "6.0.10"
 requests = "2.27.1"
 argparse = "1.4"
+mutagen = "1.45.1"
 
 [dev-packages]
 
