@@ -132,7 +132,10 @@ def save_podcasts(opml, output, episode_count=None):
 
         os.rename(full_path + TMP_EXT, full_path)
 
-        add_id3_tags(full_path, show, episode)
+        try:
+          add_id3_tags(full_path, show, episode)
+        except:
+          print(f'Episode saved at {full_path} does not support ID3 tags.')
 
         handle = open(full_path + ".txt", "w")
         handle.write(str(episode))
