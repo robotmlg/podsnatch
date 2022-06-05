@@ -17,7 +17,7 @@ TMP_EXT = '.part'
 class Show:
 
   def __init__(self, outline_element):
-    self.title = outline_element.get('title')
+    self.title = outline_element.get('text')
     self.url = (outline_element.get('xmlUrl') or
                 outline_element.get('xmlurl') or
                 None)
@@ -41,6 +41,7 @@ class Episode:
     self.number = item.itunes_episode if 'itunes_episode' in item else ''
     self.url = item.enclosures[0].href if 'enclosures' in item and item.enclosures else ''
     self.date = item.published_parsed if 'published_parsed' in item else ''
+    self.date_text = item.published if 'published' in item else ''
 
     self.show = show
 
@@ -48,7 +49,7 @@ class Episode:
     return f"""{self.title}
 {self.number}
 {self.guid}
-{self.date}
+{self.date_text}
 {self.link}
 {self.url}
 {self.content if self.content else self.description}
@@ -64,8 +65,8 @@ class Episode:
     return '_'.join([s for s in name_tokens if s is not ''])
 
 
-def parse_ompl(ompl_path):
-  tree = xml.parse(ompl_path)
+def parse_opml(opml_path):
+  tree = xml.parse(opml_path)
   root = tree.getroot()
 
   shows = root.findall('./body/outline')
@@ -98,7 +99,7 @@ def save_podcasts(opml, output, episode_count=None):
   global total_downloaded
   global full_path
 
-  shows = parse_ompl(opml)
+  shows = parse_opml(opml)
 
   for show in shows:
     print(f'Processing show {show.title}')
