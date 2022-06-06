@@ -79,16 +79,19 @@ def download(url, path, mode):
   total_size = int(response.headers.get('content-length', 0))
   block_size = 1024
 
+  downloaded_size = 0
   t = tqdm(total=total_size, unit='iB', unit_scale=True)
   with open(path, mode) as f:
     for data in response.iter_content(block_size):
       t.update(len(data))
       f.write(data)
+      downloaded_size += len(data)
   t.close()
 
   if total_size != 0 and t.n != total_size:
     print("ERROR downloading file")
 
+  return downloaded_size
 
 total_downloaded = 0
 full_path = ''
