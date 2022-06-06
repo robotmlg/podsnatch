@@ -93,11 +93,13 @@ def download(url, path, mode):
 
   return downloaded_size
 
+total_downloaded_size = 0
 total_downloaded = 0
 full_path = ''
 
 
 def save_podcasts(opml, output, episode_count=None):
+  global total_downloaded_size
   global total_downloaded
   global full_path
 
@@ -127,7 +129,7 @@ def save_podcasts(opml, output, episode_count=None):
 
       if not os.path.exists(full_path) and episode.url:
         print('Downloading episode')
-        download(episode.url, full_path + TMP_EXT, 'wb')
+        total_downloaded_size += download(episode.url, full_path + TMP_EXT, 'wb')
 
         os.rename(full_path + TMP_EXT, full_path)
 
