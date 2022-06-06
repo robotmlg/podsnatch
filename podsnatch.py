@@ -80,22 +80,43 @@ def download(url, path, mode):
   total_size = int(response.headers.get('content-length', 0))
   block_size = 1024
 
+  downloaded_size = 0
   t = tqdm(total=total_size, unit='iB', unit_scale=True)
   with open(path, mode) as f:
     for data in response.iter_content(block_size):
       t.update(len(data))
       f.write(data)
+      downloaded_size += len(data)
   t.close()
 
   if total_size != 0 and t.n != total_size:
     print("ERROR downloading file")
 
+  return downloaded_size
 
+total_downloaded_size = 0
 total_downloaded = 0
 full_path = ''
 
 
+def convert_to_size(size):
+  """
+  Takes a number of bytes and converts it to a string that is a human readable size.
+  """
+  size_labels = ['B','KB','MB','GB','TB', 'PB', 'EB', 'ZB', 'YB']
+  converted_size = size
+  counter = 0
+  while converted_size > 1000:
+    converted_size /= 1000
+    counter += 1
+  
+  size_str = f'{converted_size:.2f}{size_labels[counter]}'
+
+  return size_str
+
+
 def save_podcasts(opml, output, episode_count=None):
+  global total_downloaded_size
   global total_downloaded
   global full_path
 
@@ -125,7 +146,7 @@ def save_podcasts(opml, output, episode_count=None):
 
       if not os.path.exists(full_path) and episode.url:
         print('Downloading episode')
-        download(episode.url, full_path + TMP_EXT, 'wb')
+        total_downloaded_size += download(episode.url, full_path + TMP_EXT, 'wb')
 
         os.rename(full_path + TMP_EXT, full_path)
 
@@ -140,7 +161,7 @@ def save_podcasts(opml, output, episode_count=None):
 
       i += 1
 
-    print(f'{total_downloaded} episodes downloaded')
+    print(f'{total_downloaded} episode(s) totaling {convert_to_size(total_downloaded_size)} downloaded')
 
 
 def ctrl_c_handler(signum, frame):
@@ -149,7 +170,7 @@ def ctrl_c_handler(signum, frame):
   if os.path.exists(full_path + TMP_EXT):
     os.remove(full_path + TMP_EXT)
 
-  print(f'{total_downloaded} episodes downloaded')
+  print(f'{total_downloaded} episode(s) totaling {convert_to_size(total_downloaded_size)} downloaded')
   sys.exit(1)
 
 
