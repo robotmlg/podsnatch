@@ -164,7 +164,7 @@ if __name__ == '__main__':
                       help='location to save podcasts')
   parser.add_argument('--number-of-episodes', '-n', dest='ep_cnt',
                       action='store', default=None,
-                      help='path to opml file to import')
+                      help='how many episodes to download. By default - download all')
   args = parser.parse_args()
 
   signal.signal(signal.SIGINT, ctrl_c_handler)
