@@ -4,7 +4,7 @@ certifi==2022.5.18.1
 charset-normalizer==2.0.12
 feedparser==6.0.10
 idna==3.3
-lxml==4.8.0
+lxml==4.9.1
 requests==2.27.1
 sgmllib3k==1.0.0
 tqdm==4.64.0
