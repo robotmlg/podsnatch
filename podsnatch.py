@@ -17,10 +17,12 @@ TMP_EXT = '.part'
 class Show:
 
   def __init__(self, outline_element):
-    self.title = outline_element.get('title')
     self.url = (outline_element.get('xmlUrl') or
                 outline_element.get('xmlurl') or
                 None)
+    self.title = (outline_element.get('title') or
+                  outline_element.get('text')[0:50] or
+                  self.url.split('/')[-1])
     self.episode_guids = []
 
   def __str__(self):
