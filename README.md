@@ -22,5 +22,10 @@ you can build the docker container and run with
 docker run -it -v '/path/to/opml.opml:/input.opml' -v '/path/to/output_dir:/output' podsnatch
 ```
 
+If you want to limit episodes for download, use `-n` argument. Say, for download last 3 episodes, of each podcast you need specify your command to:
+```bash
+python podsnatch.py --opml <input file> -o <output directory> -n 3
+```
+
 ## Contributing
 PRs welcone!
